@@ -1,8 +1,11 @@
 package io.github.kasmar00.linksharer
 
+
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+
 
 class Sharing : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,10 +17,11 @@ class Sharing : AppCompatActivity() {
 //                    handleSendImage(intent) // Handle single image being sent
                 }
             }
-            intent?.action == Intent.ACTION_SEND_MULTIPLE
-                    && intent.type?.startsWith("image/") == true -> {
+
+            intent?.action == Intent.ACTION_SEND_MULTIPLE && intent.type?.startsWith("image/") == true -> {
 //                handleSendMultipleImages(intent) // Handle multiple images being sent
             }
+
             else -> {
             }
         }
@@ -40,9 +44,20 @@ class Sharing : AppCompatActivity() {
         intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
             // Update UI to reflect text being shared
             println(it)
-            text = if (listOf("fixupx", "fxtwitter").none { it2 -> it.contains(it2) })
-                it.replace("twitter.com", "fxtwitter.com").replace("x.com", "fixupx.com")
-            else it
+            text = clearTrackingParams(replaceHost(it))
         }
     }
+
+    private fun clearTrackingParams(text: String) =
+        Uri.parse(text).buildUpon().clearQuery().build().toString()
+
+    private fun replaceHost(text: String) = if (listOf(
+            "fixupx",
+            "fxtwitter",
+            "ddinstagram"
+        ).none { it2 -> text.contains(it2) }
+    ) text.replace("twitter.com", "fxtwitter.com")
+        .replace("x.com", "fixupx.com")
+        .replace("instagram.com", "ddinstagram.com")
+    else text
 }
